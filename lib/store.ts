@@ -42,6 +42,17 @@ export const useStore = create<Store>()(
     {
       name: STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
+      // Old persisted state may be missing newer Settings fields (e.g. apiKey).
+      // Merge per-slice so defaults fill in any missing keys.
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<Store>;
+        return {
+          ...current,
+          ...p,
+          names: { ...current.names, ...(p.names ?? {}) },
+          settings: { ...current.settings, ...(p.settings ?? {}) },
+        };
+      },
     },
   ),
 );

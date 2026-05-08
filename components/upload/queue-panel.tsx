@@ -2,6 +2,7 @@
 
 import type { FileEntry } from "@/lib/types";
 import { MODEL_ID } from "@/lib/constants";
+import { useStore } from "@/lib/store";
 
 interface Props {
   files: FileEntry[];
@@ -14,6 +15,9 @@ interface Props {
 export default function QueuePanel({
   files, analyzing, allDone, onAnalyze, onAdvance,
 }: Props) {
+  const apiKey = useStore((s) => s.settings.apiKey);
+  const keyConfigured = !!apiKey;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div className="post-it">
@@ -22,12 +26,21 @@ export default function QueuePanel({
       </div>
 
       <div className="sk-box" style={{ padding: 14 }}>
-        <div className="label-tag">Server</div>
+        <div className="label-tag">OpenAI</div>
         <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 6 }}>
           🧠 model: <b style={{ color: "var(--ink)" }}>{MODEL_ID}</b>
         </div>
-        <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 4 }}>
-          🔑 API key configured server-side (env var)
+        <div
+          className="mono"
+          style={{
+            fontSize: 11,
+            color: keyConfigured ? "var(--ink-3)" : "var(--danger)",
+            marginTop: 4,
+          }}
+        >
+          {keyConfigured
+            ? "🔑 API key set in browser — calls go directly to OpenAI"
+            : "⚠ no API key — open Settings to add one"}
         </div>
       </div>
 

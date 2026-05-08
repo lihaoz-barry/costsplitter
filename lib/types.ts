@@ -21,7 +21,7 @@ export interface Item {
 }
 
 export interface Names { A: string; B: string }
-export interface Settings { font: string }
+export interface Settings { font: string; apiKey: string }
 
 export interface ParsedTx {
   merchant: string;
