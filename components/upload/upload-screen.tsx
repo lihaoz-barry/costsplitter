@@ -111,7 +111,7 @@ export default function UploadScreen({ onAdvance }: Props) {
             Drop your statements
           </div>
           <p className="mono" style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 6, marginBottom: 0, lineHeight: 1.45 }}>
-            Drop two PDF statements (one per person), then tap Analyze and we&apos;ll parse the line items with AI.
+            Drop two PDF statements (one per person), then click Analyze and we&apos;ll parse the line items with AI.
             Drag each expense into Mine, Shared, or Theirs and CostSplitter will calculate who owes whom.
             Before analyzing, paste your OpenAI API key in Settings.
           </p>
