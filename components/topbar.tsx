@@ -18,7 +18,7 @@ export default function Topbar({
   const names = useStore((s) => s.names);
   return (
     <div className="topbar">
-      <div className="brand">
+      <div className="brand" aria-label="CostSplitter">
         <LogoMark size={28} />
         Cost<span className="accent">Splitter</span>
       </div>
