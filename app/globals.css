@@ -39,7 +39,15 @@ html, body {
   background: var(--paper-2);
   border-bottom: 1.5px solid var(--line);
 }
-.brand { font-family: var(--font-hand); font-size: 32px; line-height: 1; font-weight: 700; }
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-hand);
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 700;
+}
 .brand .accent { color: var(--accent); }
 
 .steps { display: flex; align-items: center; gap: 6px; }

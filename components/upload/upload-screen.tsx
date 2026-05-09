@@ -110,9 +110,11 @@ export default function UploadScreen({ onAdvance }: Props) {
           <div className="hand" style={{ fontSize: 32, lineHeight: 1 }}>
             Drop your statements
           </div>
-          <div className="mono" style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>
-            PDF only · Each PDF is parsed by your OpenAI key (set in Settings)
-          </div>
+          <p className="mono" style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 6, marginBottom: 0, lineHeight: 1.45 }}>
+            Drop two PDF statements (one per person), then tap Analyze and we&apos;ll parse the line items with AI.
+            Drag each expense into Mine, Shared, or Theirs and CostSplitter will calculate who owes whom.
+            Before analyzing, paste your OpenAI API key in Settings.
+          </p>
         </div>
         <FileDropZone
           label={names.A} color="var(--accent)"

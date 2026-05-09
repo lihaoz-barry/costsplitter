@@ -1,6 +1,7 @@
 "use client";
 
 import { useStore } from "@/lib/store";
+import LogoMark from "./logo-mark";
 
 interface Props {
   step: number;
@@ -18,6 +19,7 @@ export default function Topbar({
   return (
     <div className="topbar">
       <div className="brand">
+        <LogoMark size={28} />
         Cost<span className="accent">Splitter</span>
       </div>
 
