@@ -18,6 +18,7 @@ interface Props {
 export default function UploadScreen({ onAdvance }: Props) {
   const names = useStore((s) => s.names);
   const addItems = useStore((s) => s.addItems);
+  const apiKey = useStore((s) => s.settings.apiKey);
   const toast = useToast();
 
   const [files, setFiles] = useState<FileEntry[]>([]);
@@ -43,6 +44,10 @@ export default function UploadScreen({ onAdvance }: Props) {
       toast("Add at least one PDF first");
       return;
     }
+    if (!apiKey) {
+      toast("Add your OpenAI API key in Settings first");
+      return;
+    }
     setAnalyzing(true);
     let totalAdded = 0;
 
@@ -52,7 +57,7 @@ export default function UploadScreen({ onAdvance }: Props) {
       try {
         const text = await extractPdfText(f.file);
         if (!text || text.length < 20) throw new Error("empty PDF text");
-        const parsed = await parseStatement(text, f.name, f.payer);
+        const parsed = await parseStatement(text, f.name, f.payer, apiKey);
         const items: Item[] = parsed
           .map((it) => ({
             id: newId(),
@@ -106,7 +111,7 @@ export default function UploadScreen({ onAdvance }: Props) {
             Drop your statements
           </div>
           <div className="mono" style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>
-            PDF only · Each PDF is parsed by your server&apos;s OpenAI key
+            PDF only · Each PDF is parsed by your OpenAI key (set in Settings)
           </div>
         </div>
         <FileDropZone

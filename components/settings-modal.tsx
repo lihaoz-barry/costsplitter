@@ -14,12 +14,14 @@ export default function SettingsModal({ onClose }: Props) {
   const setSettings = useStore((s) => s.setSettings);
   const toast = useToast();
   const [font, setFont] = useState(settings.font);
+  const [apiKey, setApiKey] = useState(settings.apiKey ?? "");
+  const [showKey, setShowKey] = useState(false);
 
   // Live preview
   useEffect(() => { applyFont(font); }, [font]);
 
   const save = () => {
-    setSettings({ font });
+    setSettings({ font, apiKey: apiKey.trim() });
     applyFont(font);
     toast("Settings saved");
     onClose();
@@ -35,12 +37,39 @@ export default function SettingsModal({ onClose }: Props) {
       <div className="modal" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
         <h2>Settings</h2>
         <p style={{ marginTop: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          The OpenAI API key is configured server-side via the{" "}
-          <span className="mono" style={{ fontSize: 12 }}>OPENAI_API_KEY</span>{" "}
-          environment variable. Font choice is stored in your browser only.
+          Your OpenAI API key and font choice are stored in this browser only
+          (localStorage). The key is sent directly from your browser to the
+          OpenAI API — it never touches a server we control.
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
+          <div>
+            <div className="label-tag" style={{ marginBottom: 4 }}>OpenAI API key</div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <input
+                type={showKey ? "text" : "password"}
+                className="select mono"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="sk-..."
+                autoComplete="off"
+                spellCheck={false}
+                style={{ flex: 1, fontSize: 12 }}
+              />
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={() => setShowKey((v) => !v)}
+                style={{ minWidth: 64 }}
+              >
+                {showKey ? "Hide" : "Show"}
+              </button>
+            </div>
+            <div style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 4 }}>
+              Get one at platform.openai.com/api-keys.
+            </div>
+          </div>
+
           <div>
             <div className="label-tag" style={{ marginBottom: 4 }}>Display font</div>
             <select

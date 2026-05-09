@@ -19,7 +19,7 @@ export const FONTS = [
   { id: "Homemade Apple", label: "Homemade Apple" },
 ] as const;
 
-export const DEFAULT_SETTINGS = { font: "Caveat" };
+export const DEFAULT_SETTINGS = { font: "Caveat", apiKey: "" };
 
 // The OpenAI model used for PDF parsing. One-line swap to change models.
 // If your account doesn't have gpt-5 access, switch to "gpt-4.1" or "gpt-4o".

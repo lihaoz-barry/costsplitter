@@ -17,32 +17,31 @@ You need **Node.js 18.18+** (Node 20 LTS recommended) and an **OpenAI API key**.
 # 1. Install dependencies (one time, ~30s)
 npm install
 
-# 2. Configure your OpenAI key
-cp .env.local.example .env.local
-# then open .env.local and paste your real sk-... key
-
-# 3. Start the dev server
+# 2. Start the dev server
 npm run dev
 ```
 
-Open <http://localhost:3000>. Edits to `.tsx` / `.ts` / `.css` files hot-reload
-automatically — no restart needed.
+Open <http://localhost:3000>, then click **Settings** in the top bar and paste
+your `sk-...` OpenAI key. The key is stored in `localStorage` and sent directly
+from your browser to the OpenAI API.
 
 > **Stop the server**: press `Ctrl+C` in the terminal.
 > **Restart**: re-run `npm run dev`. You only need to restart after changing
-> `.env.local`, `next.config.ts`, or `package.json`.
+> `next.config.ts` or `package.json`.
 
 ---
 
 ## 2. All commands at a glance
 
-| Command            | What it does                                                |
-| ------------------ | ----------------------------------------------------------- |
-| `npm install`      | Install dependencies. Run after `git pull` if deps changed. |
-| `npm run dev`      | Dev server with hot reload at <http://localhost:3000>.      |
-| `npm run typecheck`| Run TypeScript with no emit — catches type errors only.     |
-| `npm run build`    | Production build into `.next/`. Catches build-time errors.  |
-| `npm run start`    | Serve the production build locally (run `build` first).     |
+| Command             | What it does                                                |
+| ------------------- | ----------------------------------------------------------- |
+| `npm install`       | Install dependencies. Run after `git pull` if deps changed. |
+| `npm run dev`       | Dev server with hot reload at <http://localhost:3000>.      |
+| `npm run typecheck` | Run TypeScript with no emit — catches type errors only.     |
+| `npm run build`     | Production build into `.next/`. Catches build-time errors.  |
+| `npm run start`     | Serve the production build locally (run `build` first).     |
+| `npm test`          | Run unit tests once (vitest).                               |
+| `npm run test:watch`| Run unit tests in watch mode.                               |
 
 Two-step "is this ready to ship?" check:
 
@@ -62,22 +61,20 @@ If both pass, the app will deploy successfully on Vercel.
    `upload-screen.tsx` show up here.
 3. **Sources** tab → find your `.tsx` file → set breakpoints.
 4. **Application** → **Local Storage** → `http://localhost:3000` → key `cs.store`.
-   That's the entire persisted state. Delete it to reset to defaults.
-5. **Network** tab → filter `parse` → inspect the request/response to
-   `/api/parse`. If parsing fails, the response body has the error.
+   That's the entire persisted state (settings, names, items, **and your API
+   key**). Delete it to reset to defaults.
+5. **Network** tab → filter `chat/completions` → inspect the request/response
+   to `https://api.openai.com/v1/chat/completions`. If parsing fails, the
+   response body has the error.
 
-### Server-side bugs (the OpenAI call)
-1. The dev server prints API route logs to the **terminal where you ran
-   `npm run dev`**.
-2. Add `console.log(...)` inside `app/api/parse/route.ts` — output appears in
-   that terminal, not the browser console.
-3. Common errors and what they mean:
-   - `OPENAI_API_KEY not set on server` → fix `.env.local`, restart `npm run dev`.
-   - `openai 401` → the key is invalid or revoked.
-   - `openai 404 model not found` → your account doesn't have access to the
-     model in `lib/constants.ts` → switch `MODEL_ID` to `"gpt-4.1"` or `"gpt-4o"`.
-   - `empty PDF text` → the PDF is image-only (a scan). pdf.js can't read it.
-     Use a text-based PDF.
+### OpenAI call errors
+The browser calls OpenAI directly. Common errors and what they mean:
+- `OpenAI API key not set` → open Settings and paste your `sk-...` key.
+- `openai 401` → the key is invalid or revoked.
+- `openai 404 model not found` → your account doesn't have access to the
+  model in `lib/constants.ts` → switch `MODEL_ID` to `"gpt-4.1"` or `"gpt-4o"`.
+- `empty PDF text` → the PDF is image-only (a scan). pdf.js can't read it.
+  Use a text-based PDF.
 
 ### Type / lint errors
 - `npm run typecheck` will list every TS error with the file and line number.
@@ -98,8 +95,7 @@ costspliter-next/
 ├── app/                          # Next.js App Router
 │   ├── layout.tsx                # <html>, fonts, metadata — wraps every page
 │   ├── page.tsx                  # the home route — renders <App />
-│   ├── globals.css               # all styling (verbatim from prototype)
-│   └── api/parse/route.ts        # POST /api/parse — server-side OpenAI call
+│   └── globals.css               # all styling (verbatim from prototype)
 │
 ├── components/                   # All React UI
 │   ├── app.tsx                   # top-level: stepper + which screen to show
@@ -125,14 +121,14 @@ costspliter-next/
 │   ├── constants.ts              # CAT_GLYPH, FONTS, MODEL_ID, newId()
 │   ├── format.ts                 # fmt(), computeShares(), suggestBucket()
 │   ├── pdf.ts                    # extractPdfText() — wraps pdf.js (client only)
-│   ├── api.ts                    # parseStatement() — fetch wrapper to /api/parse
+│   ├── api.ts                    # parseStatement() — calls OpenAI directly from the browser
 │   └── store.ts                  # Zustand store with localStorage persistence
 │
+├── tests/                        # vitest unit tests for lib/
 ├── package.json                  # dependencies + npm scripts
 ├── tsconfig.json                 # TypeScript config (strict mode)
 ├── next.config.ts                # Next.js config (minimal)
 ├── next-env.d.ts                 # auto-generated, don't edit
-├── .env.local.example            # template for your secrets
 ├── .gitignore
 └── README.md                     # this file
 ```
@@ -146,8 +142,10 @@ costspliter-next/
   Step 1.
 - **State lives in one Zustand store** (`lib/store.ts`). No prop-drilling, no
   `window` globals (the original used `window.SplitScreen` etc. — gone).
-- **The OpenAI key never reaches the browser**. The browser calls `/api/parse`,
-  which runs on the server and uses `process.env.OPENAI_API_KEY`.
+- **The OpenAI key lives in the browser** (`localStorage` via the Zustand
+  `persist` middleware) and is sent directly from the browser to the OpenAI
+  API. There is no server-side proxy. This means anyone who can read your
+  browser's storage can read the key — keep that in mind on shared machines.
 
 ---
 
@@ -159,23 +157,13 @@ costspliter-next/
 3. **Root Directory**: if your repo root is the parent folder, set this to
    `costspliter-next`. Otherwise leave it blank.
 4. **Framework preset**: Vercel auto-detects Next.js — leave as-is.
-5. **Environment Variables** → add:
-   - Name: `OPENAI_API_KEY`
-   - Value: your `sk-...` key
-   - Apply to: Production, Preview, Development
+5. **Environment Variables**: none required — each user pastes their own
+   OpenAI key into the Settings modal in their browser.
 6. Click **Deploy**. First build takes ~1 minute.
 
 ### Subsequent deploys
 Just `git push`. Vercel rebuilds and deploys on every push to your default
 branch automatically. PRs get preview URLs.
-
-### View production logs
-- <https://vercel.com> → your project → **Logs** tab. The output of
-  `console.log(...)` from `app/api/parse/route.ts` shows up here in real time.
-
-### Updating the OpenAI key on Vercel
-Project → **Settings** → **Environment Variables** → edit `OPENAI_API_KEY` →
-**Redeploy** (env changes don't apply to existing deployments).
 
 ---
 
@@ -188,7 +176,7 @@ Project → **Settings** → **Environment Variables** → edit `OPENAI_API_KEY`
 | Available fonts        | `lib/constants.ts` → `FONTS` array     | add `{ id, label }` AND add to `FONTS_HREF` in `app/layout.tsx` |
 | Color palette          | `app/globals.css` → `:root { ... }`    | edit the `--ink`, `--accent`, `--paper`, etc.   |
 | Shared-bucket hints    | `lib/format.ts` → `suggestBucket()`    | edit `sharedHints` / `sharedCats`               |
-| AI parsing prompt      | `app/api/parse/route.ts` → `SYSTEM_PROMPT` | rewrite the JSON schema / instructions      |
+| AI parsing prompt      | `lib/api.ts` → `SYSTEM_PROMPT`         | rewrite the JSON schema / instructions          |
 
 ---
 
@@ -209,9 +197,8 @@ re-export the statement as a real PDF, or add an OCR step before
 `extractPdfText()`.
 
 **Dev server runs but Analyze button does nothing**
-Check the terminal running `npm run dev` for an error. Most likely:
-`OPENAI_API_KEY not set on server` → put a real key in `.env.local` and
-restart the dev server.
+Open the browser console (F12). The most likely cause is that no API key is
+saved — you'll see a toast saying so. Open Settings and paste your key.
 
 **The "most modern" model isn't available on my account**
 Edit `lib/constants.ts` and change `MODEL_ID` to one your account has access
@@ -225,7 +212,7 @@ hot-reloads. No reinstall needed.
 | Before (`../project/`)                      | After (this folder)                            |
 | ------------------------------------------- | ---------------------------------------------- |
 | Single HTML file with `<script>` tags       | Next.js App Router + TypeScript                |
-| OpenAI key in `localStorage` (browser)      | `OPENAI_API_KEY` env var (server)              |
+| OpenAI key in `localStorage` (browser)      | OpenAI key in `localStorage` (browser, same)   |
 | Model picker in Settings                    | Hardcoded `MODEL_ID` constant (one-line swap)  |
 | `window.SplitScreen`, `window.fmt`, etc.    | ES module imports + typed Zustand store        |
 | Babel-in-browser transpilation              | Build-time compilation, no runtime Babel       |
