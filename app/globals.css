@@ -39,8 +39,22 @@ html, body {
   background: var(--paper-2);
   border-bottom: 1.5px solid var(--line);
 }
-.brand { font-family: var(--font-hand); font-size: 32px; line-height: 1; font-weight: 700; }
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-hand);
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 700;
+}
 .brand .accent { color: var(--accent); }
+.onboarding-blurb {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
 
 .steps { display: flex; align-items: center; gap: 6px; }
 .step-pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-hand); font-size: 18px; cursor: pointer; }
