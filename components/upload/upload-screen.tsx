@@ -111,9 +111,9 @@ export default function UploadScreen({ onAdvance }: Props) {
             Drop your statements
           </div>
           <p className="mono onboarding-blurb">
+            Before analyzing, paste your OpenAI API key in Settings.
             Drop two PDF statements (one per person), then click Analyze and we'll parse the line items with AI.
             Drag each expense into Mine, Shared, or Theirs and CostSplitter will calculate who owes whom.
-            Before analyzing, paste your OpenAI API key in Settings.
           </p>
         </div>
         <FileDropZone
