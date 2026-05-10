@@ -200,7 +200,7 @@ html, body {
   transition: transform 0.08s, box-shadow 0.08s;
 }
 .item-card:hover { transform: translate(-0.5px, -1px); box-shadow: 1.5px 2.5px 0 rgba(0,0,0,0.08); }
-.item-card.dragging { opacity: 0.4; cursor: grabbing; }
+.item-card.dragging { visibility: hidden; }
 .item-card.tilt-l { transform: rotate(-0.4deg); }
 .item-card.tilt-r { transform: rotate(0.4deg); }
 .item-card.tilt-l:hover { transform: rotate(-0.4deg) translate(-0.5px, -1px); }
